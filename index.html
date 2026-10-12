@@ -8,6 +8,7 @@
     body { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; padding: 24px; line-height: 1.6; }
     img { width: 80px; height: 80px; border-radius: 50%; }
     code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
+    pre { background: #f2f2f2; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
     .error { color: #c0392b; }
   </style>
 </head>
@@ -19,12 +20,15 @@
     <p>暱稱：<span id="name"></span></p>
     <p>userId：<code id="uid"></code></p>
     <p>在 LINE 內開啟：<span id="inClient"></span></p>
+    <h3>後端回應</h3>
+    <pre id="backend"></pre>
   </div>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
     const LIFF_ID = "2011974729-yuI02QME";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbyYWlxWr_t3RRkcBmje0l1zHL2uomIBFFEhJudsHvLrsOB6kZoZBZbedXY_B8tQSzU/exec";
 
     async function main() {
       const status = document.getElementById("status");
@@ -43,14 +47,21 @@
         document.getElementById("uid").textContent = profile.userId;
         document.getElementById("inClient").textContent = liff.isInClient() ? "是" : "否（外部瀏覽器）";
 
-        // 之後送給後端驗證身分用的 ID token（這一步先確認拿得到）
-        const idToken = liff.getIDToken();
-        console.log("ID token 長度：", idToken ? idToken.length : "拿不到，請確認 scope 有勾 openid");
-
-        status.textContent = "✅ 連線成功";
+        status.textContent = "✅ LINE 連線成功";
         document.getElementById("profile").hidden = false;
+
+        // 呼叫後端，測試身分驗證
+        const backend = document.getElementById("backend");
+        backend.textContent = "後端連線中…";
+        const res = await fetch(GAS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // 必須用 text/plain 避開 CORS
+          body: JSON.stringify({ action: "status", idToken: liff.getIDToken() }),
+        });
+        const data = await res.json();
+        backend.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        status.innerHTML = `<p class="error">❌ 初始化失敗：${err.message}</p>`;
+        status.innerHTML = `<p class="error">❌ 發生錯誤：${err.message}</p>`;
         console.error(err);
       }
     }
