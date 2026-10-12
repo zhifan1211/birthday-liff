@@ -385,10 +385,7 @@
 
       $("message").addEventListener("input", (e) => ($("msg-len").textContent = e.target.value.length));
       setupSecretQuestions();
-      $("kind-ok").addEventListener("click", () => {
-        $("kind-modal").hidden = true;
-        $("q-handsome").scrollIntoView({ behavior: "smooth", block: "center" });
-      });
+      $("kind-ok").addEventListener("click", () => ($("kind-modal").hidden = true));
       $("submit-btn").addEventListener("click", submitWish);
       show("view-form");
     }
@@ -431,6 +428,11 @@
         $("q-" + key).addEventListener("click", (e) => {
           const btn = e.target.closest(".opt");
           if (!btn) return;
+          // 帥度 4 分以下：直接跳提醒，不讓他選
+          if (key === "handsome" && Number(btn.dataset.v) <= 4) {
+            $("kind-modal").hidden = false;
+            return;
+          }
           $("q-" + key).querySelectorAll(".opt").forEach((o) => o.classList.toggle("active", o === btn));
           secret[key] = isNumber ? Number(btn.dataset.v) : btn.dataset.v;
         });
@@ -450,12 +452,6 @@
       if (!message)  return (errorBox.textContent = ERROR_TEXT.INVALID_MESSAGE);
       if (secret.knew === null || secret.handsome === null || secret.kindness === null)
         return (errorBox.textContent = ERROR_TEXT.INVALID_SECRET);
-      // 帥度 4 分以下不給送出 😆
-      if (secret.handsome <= 4) {
-        errorBox.textContent = "";
-        $("kind-modal").hidden = false;
-        return;
-      }
 
       errorBox.textContent = "";
       btn.disabled = true;
