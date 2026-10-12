@@ -2,67 +2,308 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>連線測試</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>宏昇的禮物盒</title>
   <style>
-    body { font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; padding: 24px; line-height: 1.6; }
-    img { width: 80px; height: 80px; border-radius: 50%; }
-    code { background: #f2f2f2; padding: 2px 6px; border-radius: 4px; word-break: break-all; }
-    pre { background: #f2f2f2; padding: 12px; border-radius: 8px; white-space: pre-wrap; word-break: break-all; }
-    .error { color: #c0392b; }
+    :root {
+      --bg: #fbf6ee;
+      --card: #ffffff;
+      --text: #3b2f2a;
+      --muted: #8a7b72;
+      --accent: #e0795b;
+      --accent-dark: #c4613f;
+      --line: #eadfd3;
+      --error: #c0392b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, "PingFang TC", "Noto Sans TC", sans-serif;
+      line-height: 1.6;
+    }
+    main { max-width: 480px; margin: 0 auto; padding: 32px 20px 48px; }
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 28px 22px;
+      box-shadow: 0 6px 24px rgba(120, 80, 50, 0.08);
+    }
+    h1 { font-size: 24px; margin: 0 0 6px; text-align: center; }
+    .sub { color: var(--muted); text-align: center; margin: 0 0 24px; font-size: 15px; }
+    .emoji { font-size: 48px; text-align: center; margin-bottom: 8px; }
+
+    label { display: block; font-weight: 600; margin: 18px 0 6px; font-size: 15px; }
+    .hint { font-weight: 400; color: var(--muted); font-size: 13px; }
+    input, select, textarea {
+      width: 100%;
+      font: inherit;
+      font-size: 16px; /* 16px 以上 iOS 才不會自動放大 */
+      color: var(--text);
+      background: #fffdfa;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+    textarea { min-height: 150px; resize: vertical; }
+    .counter { text-align: right; color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+    button {
+      width: 100%;
+      margin-top: 24px;
+      padding: 14px;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--accent);
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background .2s, opacity .2s;
+    }
+    button:active { background: var(--accent-dark); }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .error { color: var(--error); font-size: 14px; margin-top: 12px; text-align: center; min-height: 1em; }
+
+    /* 進度 */
+    .progress-num { text-align: center; font-size: 44px; font-weight: 800; color: var(--accent); margin: 8px 0 4px; }
+    .progress-num small { font-size: 22px; color: var(--muted); font-weight: 600; }
+    .bar { height: 12px; background: var(--line); border-radius: 99px; overflow: hidden; margin: 12px 0 20px; }
+    .bar > div { height: 100%; background: var(--accent); border-radius: 99px; transition: width .6s; }
+    .names { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+    .names span { background: #fdeee7; color: var(--accent-dark); padding: 4px 12px; border-radius: 99px; font-size: 14px; }
+
+    .center { text-align: center; }
+    .loading { text-align: center; color: var(--muted); padding-top: 30vh; }
+    [hidden] { display: none !important; }
   </style>
 </head>
 <body>
-  <h2>LIFF 連線測試</h2>
-  <div id="status">初始化中…</div>
-  <div id="profile" hidden>
-    <img id="avatar" alt="大頭貼" />
-    <p>暱稱：<span id="name"></span></p>
-    <p>userId：<code id="uid"></code></p>
-    <p>在 LINE 內開啟：<span id="inClient"></span></p>
-    <h3>後端回應</h3>
-    <pre id="backend"></pre>
-  </div>
+  <main>
+    <!-- 載入中 -->
+    <div id="view-loading" class="loading">載入中…</div>
+
+    <!-- 錯誤 -->
+    <div id="view-error" class="card center" hidden>
+      <div class="emoji">😵</div>
+      <h1>出了點問題</h1>
+      <p class="sub" id="error-text"></p>
+      <button onclick="location.reload()">重新整理</button>
+    </div>
+
+    <!-- 朋友：填寫表單 -->
+    <div id="view-form" class="card" hidden>
+      <div class="emoji">🎂</div>
+      <h1>寫一段祝福給<span class="birthday-name"></span></h1>
+      <p class="sub">集滿 <span class="max"></span> 個人的祝福，生日禮物才會解鎖<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
+
+      <label for="nickname">你的暱稱 <span class="hint">（壽星平常怎麼叫你）</span></label>
+      <input id="nickname" maxlength="20" placeholder="例如：阿豪" />
+
+      <label for="year">你們是哪一年認識的？</label>
+      <select id="year"><option value="">請選擇年份</option></select>
+
+      <label for="message">想對<span class="birthday-name"></span>說的話</label>
+      <textarea id="message" maxlength="500" placeholder="寫下你的祝福…"></textarea>
+      <div class="counter"><span id="msg-len">0</span> / 500</div>
+
+      <button id="submit-btn">送出祝福</button>
+      <div class="error" id="form-error"></div>
+    </div>
+
+    <!-- 朋友：已送出 -->
+    <div id="view-thanks" class="card center" hidden>
+      <div class="emoji">💌</div>
+      <h1>謝謝你的祝福！</h1>
+      <p class="sub">你的祝福已經收好了<br>等集滿 <span class="max"></span> 人，<span class="birthday-name"></span>就能打開禮物</p>
+    </div>
+
+    <!-- 朋友：已額滿 -->
+    <div id="view-full" class="card center" hidden>
+      <div class="emoji">🎉</div>
+      <h1>已經集滿囉！</h1>
+      <p class="sub"><span class="max"></span> 份祝福都到齊了<br>謝謝你的關心，可以私下傳訊息祝<span class="birthday-name"></span>生日快樂 ❤️</p>
+    </div>
+
+    <!-- 壽星：進度 -->
+    <div id="view-owner" class="card" hidden>
+      <div class="emoji">🎁</div>
+      <h1>你的生日禮物</h1>
+      <p class="sub" id="owner-sub">把連結分享給朋友，集滿就能打開</p>
+      <div class="progress-num"><span id="owner-count"></span><small> / <span class="max"></span></small></div>
+      <div class="bar"><div id="owner-bar" style="width:0"></div></div>
+      <div class="names" id="owner-names"></div>
+      <button id="share-btn">分享連結給朋友</button>
+      <button id="gift-btn" hidden>打開禮物 🎁</button>
+    </div>
+  </main>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <script>
-    const LIFF_ID = "2011974729-yuI02QME";
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbyYWlxWr_t3RRkcBmje0l1zHL2uomIBFFEhJudsHvLrsOB6kZoZBZbedXY_B8tQSzU/exec";
+    // ===== 設定區 =====
+    const LIFF_ID       = "2011974729-yuI02QME";
+    const GAS_URL       = "https://script.google.com/macros/s/AKfycbyYWlxWr_t3RRkcBmje0l1zHL2uomIBFFEhJudsHvLrsOB6kZoZBZbedXY_B8tQSzU/exec";
+    const BIRTHDAY_NAME = "宏昇";   // 換成壽星的名字或綽號
+    const YEAR_MIN = 1993;
+    const YEAR_MAX = 2026;
 
+    const ERROR_TEXT = {
+      LOGIN_EXPIRED:       "登入逾時，請重新整理頁面",
+      ALREADY_SUBMITTED:   "你已經送出過祝福囉",
+      FULL:                "很可惜，名額剛好滿了",
+      INVALID_NICKNAME:    "暱稱請填 1–20 個字",
+      INVALID_MESSAGE:     "祝福請填 1–500 個字",
+      INVALID_YEAR:        "請選擇認識的年份",
+      OWNER_CANNOT_SUBMIT: "壽星不能幫自己寫祝福喔 😆",
+      CONFIG_MISSING:      "後端設定不完整（指令碼屬性）",
+      SERVER_ERROR:        "伺服器發生錯誤，請稍後再試",
+    };
+
+    const $ = (id) => document.getElementById(id);
+
+    // ===== 呼叫後端 =====
+    async function api(action, data = {}) {
+      const res = await fetch(GAS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" }, // 必須用 text/plain 避開 CORS
+        body: JSON.stringify({ action, idToken: liff.getIDToken(), ...data }),
+      });
+      const json = await res.json();
+      if (json.error === "LOGIN_EXPIRED") {
+        // ID token 過期：登出後重新載入，LIFF 會自動重新登入
+        liff.logout();
+        location.reload();
+        throw new Error("LOGIN_EXPIRED");
+      }
+      return json;
+    }
+
+    // ===== 切換畫面 =====
+    function show(viewId) {
+      document.querySelectorAll("main > div").forEach((el) => (el.hidden = el.id !== viewId));
+    }
+    function showError(code) {
+      $("error-text").textContent = ERROR_TEXT[code] || code;
+      show("view-error");
+    }
+
+    // ===== 主流程 =====
     async function main() {
-      const status = document.getElementById("status");
+      document.querySelectorAll(".birthday-name").forEach((el) => (el.textContent = BIRTHDAY_NAME));
+
       try {
         await liff.init({ liffId: LIFF_ID });
+        if (!liff.isLoggedIn()) { liff.login(); return; }
 
-        // 在外部瀏覽器開啟時需要手動登入；在 LINE 內會自動登入
-        if (!liff.isLoggedIn()) {
-          liff.login();
+        const status = await api("status");
+        if (!status.ok) return showError(status.error);
+
+        document.querySelectorAll(".max").forEach((el) => (el.textContent = status.max));
+
+        if (status.isOwner)        return renderOwner(status);
+        if (status.submitted)      return show("view-thanks");
+        if (status.full)           return show("view-full");
+        renderForm(status);
+      } catch (err) {
+        console.error(err);
+        if (err.message !== "LOGIN_EXPIRED") showError(err.message);
+      }
+    }
+
+    // ===== 朋友：表單 =====
+    async function renderForm(status) {
+      $("form-count").textContent = status.count;
+
+      // 年份選單：新的在上面
+      const select = $("year");
+      for (let y = YEAR_MAX; y >= YEAR_MIN; y--) select.add(new Option(y + " 年", y));
+
+      // 暱稱預設帶入 LINE 名稱
+      try {
+        const profile = await liff.getProfile();
+        $("nickname").value = profile.displayName.slice(0, 20);
+      } catch (_) {}
+
+      $("message").addEventListener("input", (e) => ($("msg-len").textContent = e.target.value.length));
+      $("submit-btn").addEventListener("click", submitWish);
+      show("view-form");
+    }
+
+    async function submitWish() {
+      const nickname = $("nickname").value.trim();
+      const year     = Number($("year").value);
+      const message  = $("message").value.trim();
+      const errorBox = $("form-error");
+      const btn      = $("submit-btn");
+
+      // 前端先檢查一次（後端還會再檢查）
+      if (!nickname) return (errorBox.textContent = ERROR_TEXT.INVALID_NICKNAME);
+      if (!year)     return (errorBox.textContent = ERROR_TEXT.INVALID_YEAR);
+      if (!message)  return (errorBox.textContent = ERROR_TEXT.INVALID_MESSAGE);
+
+      errorBox.textContent = "";
+      btn.disabled = true;
+      btn.textContent = "傳送中…";
+
+      try {
+        const result = await api("submit", { nickname, year, message });
+        if (result.ok)                          return show("view-thanks");
+        if (result.error === "ALREADY_SUBMITTED") return show("view-thanks");
+        if (result.error === "FULL")              return show("view-full");
+        errorBox.textContent = ERROR_TEXT[result.error] || result.error;
+      } catch (err) {
+        errorBox.textContent = "網路不穩，請再試一次";
+      }
+      btn.disabled = false;
+      btn.textContent = "送出祝福";
+    }
+
+    // ===== 壽星：進度 =====
+    function renderOwner(status) {
+      $("owner-count").textContent = status.count;
+      $("owner-bar").style.width = Math.min(100, (status.count / status.max) * 100) + "%";
+
+      const names = $("owner-names");
+      status.names.forEach((n) => {
+        const tag = document.createElement("span");
+        tag.textContent = n;
+        names.appendChild(tag);
+      });
+
+      if (status.full) {
+        $("owner-sub").textContent = "大家的祝福都到齊了！";
+        $("share-btn").hidden = true;
+        $("gift-btn").hidden = false;
+        $("gift-btn").addEventListener("click", () => alert("禮物頁在第 4 課完成 😉"));
+      } else {
+        $("owner-sub").textContent = `還差 ${status.max - status.count} 個人，把連結分享給朋友吧`;
+        $("share-btn").addEventListener("click", shareLink);
+      }
+      show("view-owner");
+    }
+
+    async function shareLink() {
+      const url = `https://liff.line.me/${LIFF_ID}`;
+      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？集滿 12 人才能打開禮物！\n${url}`;
+      try {
+        if (liff.isApiAvailable("shareTargetPicker")) {
+          await liff.shareTargetPicker([{ type: "text", text }]);
           return;
         }
-
-        const profile = await liff.getProfile();
-        document.getElementById("avatar").src = profile.pictureUrl || "";
-        document.getElementById("name").textContent = profile.displayName;
-        document.getElementById("uid").textContent = profile.userId;
-        document.getElementById("inClient").textContent = liff.isInClient() ? "是" : "否（外部瀏覽器）";
-
-        status.textContent = "✅ LINE 連線成功";
-        document.getElementById("profile").hidden = false;
-
-        // 呼叫後端，測試身分驗證
-        const backend = document.getElementById("backend");
-        backend.textContent = "後端連線中…";
-        const res = await fetch(GAS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "text/plain;charset=utf-8" }, // 必須用 text/plain 避開 CORS
-          body: JSON.stringify({ action: "status", idToken: liff.getIDToken() }),
-        });
-        const data = await res.json();
-        backend.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        status.innerHTML = `<p class="error">❌ 發生錯誤：${err.message}</p>`;
-        console.error(err);
+      } catch (_) {}
+      // 不支援分享選單時改成複製連結
+      try {
+        await navigator.clipboard.writeText(text);
+        alert("已複製邀請文字，貼到聊天室就可以了");
+      } catch (_) {
+        prompt("複製以下文字分享給朋友：", text);
       }
     }
 
