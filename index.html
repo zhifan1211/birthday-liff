@@ -88,6 +88,10 @@
     .gift-hero .big { font-size: 64px; line-height: 1; animation: pop 1s ease both; }
     .gift-hero h1 { font-size: 28px; margin: 16px 0 8px; }
     .gift-hero p { color: var(--muted); margin: 0; }
+    #gift-stats p { margin: 8px 0; white-space: pre-line; }
+    #gift-stats b, #gift-sub b { color: var(--accent-dark); font-size: 1.1em; }
+    #gift-stats { margin: 10px 0; }
+    #gift-stats small { display: inline-block; white-space: nowrap; font-size: 13px; }
 
     .timeline { position: relative; margin: 32px 0 0; padding-left: 28px; }
     .timeline::before {
@@ -134,6 +138,38 @@
       .confetti { display: none; }
     }
 
+    /* ===== 悄悄話區 ===== */
+    .secret {
+      margin-top: 28px; padding: 18px 16px 20px;
+      background: #f6f1fb; border: 1.5px dashed #c9b6e4; border-radius: 16px;
+    }
+    .secret-head { font-weight: 800; font-size: 17px; color: #6b4fa0; }
+    .secret-note { margin: 4px 0 0; font-size: 14px; color: #7a6a92; }
+    .secret-note b { color: #6b4fa0; }
+    .secret label { margin-top: 18px; }
+    .opts { display: grid; gap: 6px; }
+    .opts.two { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .opts.score { grid-template-columns: repeat(11, 1fr); gap: 4px; }
+    .opts .opt {
+      margin: 0; width: 100%; padding: 10px 0;
+      font-size: 15px; font-weight: 600;
+      color: #6b4fa0; background: #fff;
+      border: 1.5px solid #ddd0ee; border-radius: 10px;
+    }
+    .opts.score .opt { padding: 9px 0; font-size: 14px; border-radius: 8px; }
+    .opts .opt:active { background: #efe7f9; }
+    .opts .opt.active { color: #fff; background: #8a6cc0; border-color: #8a6cc0; }
+    .score-ends { display: flex; justify-content: space-between; font-size: 12px; color: #9a8bb0; margin-top: 4px; }
+
+    .stars { display: flex; gap: 6px; }
+    .stars .star {
+      margin: 0; width: auto; padding: 0 2px; background: none; border: none;
+      font-size: 36px; line-height: 1.1; color: #ddd0ee; cursor: pointer;
+    }
+    .stars .star.on { color: #f4b400; }
+    .stars .star:active { background: none; transform: scale(.9); }
+
+
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -166,6 +202,23 @@
       <textarea id="message" maxlength="500" placeholder="寫下你的祝福…"></textarea>
       <div class="counter"><span id="msg-len">0</span> / 500</div>
 
+      <div class="secret">
+        <div class="secret-head">悄悄話時間</div>
+        <p class="secret-note">你的個別回答<b>不會讓<span class="birthday-name"></span>知道</b>，只會以全體統計的方式呈現，請放心作答</p>
+
+        <label>在回覆祝福前，你知道 <span class="birthday-date"></span> 是<span class="birthday-name"></span>的生日嗎？</label>
+        <div class="opts two" id="q-knew">
+          <button type="button" class="opt" data-v="本來就知道">本來就知道 😊</button>
+          <button type="button" class="opt" data-v="現在才知道">現在才知道 🤣</button>
+        </div>
+
+        <label>如果心目中的滿分帥哥是 10 分，你會給<span class="birthday-name"></span>幾分？</label>
+        <div class="opts score" id="q-handsome"></div>
+
+        <label>如果內心的善良可以被評分，你會給<span class="birthday-name"></span>幾顆星？</label>
+        <div class="stars" id="q-kindness"></div>
+      </div>
+
       <button id="submit-btn">送出祝福</button>
       <div class="error" id="form-error"></div>
     </div>
@@ -195,11 +248,12 @@
         <div class="big">🎂</div>
         <h1>生日快樂，<span class="birthday-name"></span>！</h1>
         <p id="gift-sub"></p>
+        <div id="gift-stats"></div>
         <p>領取禮物前，看看他們都寫些什麼吧</p>
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
-        現在，你可以截圖給發任務的人，兌換生日禮物！
+        現在，你可以截圖給任務發起人<br>兌換你的生日禮物 🎁
       </div>
     </div>
   </main>
@@ -211,6 +265,7 @@
     const LIFF_ID       = "2011974729-yuI02QME";
     const GAS_URL       = "https://script.google.com/macros/s/AKfycbyYWlxWr_t3RRkcBmje0l1zHL2uomIBFFEhJudsHvLrsOB6kZoZBZbedXY_B8tQSzU/exec";
     const BIRTHDAY_NAME = "宏昇";   // 換成壽星的名字或綽號
+    const BIRTHDAY_DATE = "10/22";  // 壽星生日
     const YEAR_MIN = 1993;
     const YEAR_MAX = 2026;
 
@@ -220,6 +275,7 @@
       INVALID_NICKNAME:    "暱稱請填 1–20 個字",
       INVALID_MESSAGE:     "祝福請填 1–500 個字",
       INVALID_YEAR:        "請選擇認識的年份",
+      INVALID_SECRET:      "悄悄話的三個問題還沒回答完喔",
       OWNER_CANNOT_SUBMIT: "壽星不能幫自己寫祝福喔 😆",
       CONFIG_MISSING:      "後端設定不完整（指令碼屬性）",
       SERVER_ERROR:        "伺服器發生錯誤，請稍後再試",
@@ -256,6 +312,7 @@
     // ===== 主流程 =====
     async function main() {
       document.querySelectorAll(".birthday-name").forEach((el) => (el.textContent = BIRTHDAY_NAME));
+      document.querySelectorAll(".birthday-date").forEach((el) => (el.textContent = BIRTHDAY_DATE));
 
       try {
         await liff.init({ liffId: LIFF_ID });
@@ -290,8 +347,53 @@
       } catch (_) {}
 
       $("message").addEventListener("input", (e) => ($("msg-len").textContent = e.target.value.length));
+      setupSecretQuestions();
       $("submit-btn").addEventListener("click", submitWish);
       show("view-form");
+    }
+
+    // ===== 悄悄話問題 =====
+    const secret = { knew: null, handsome: null, kindness: null };
+
+    function setupSecretQuestions() {
+      // 0–10 分的按鈕
+      ["handsome"].forEach((key) => {
+        const box = $("q-" + key);
+        box.innerHTML = "";
+        for (let i = 0; i <= 10; i++) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "opt";
+          b.dataset.v = i;
+          b.textContent = i;
+          box.appendChild(b);
+        }
+      });
+      // 點選後記錄答案、標示選中
+      // 善良度：1–5 顆星
+      const starBox = $("q-kindness");
+      starBox.innerHTML = "";
+      for (let i = 1; i <= 5; i++) {
+        const st = document.createElement("button");
+        st.type = "button";
+        st.className = "star";
+        st.textContent = "★";
+        st.setAttribute("aria-label", i + " 顆星");
+        st.addEventListener("click", () => {
+          secret.kindness = i;
+          starBox.querySelectorAll(".star").forEach((o, idx) => o.classList.toggle("on", idx < i));
+        });
+        starBox.appendChild(st);
+      }
+
+      [["knew", false], ["handsome", true]].forEach(([key, isNumber]) => {
+        $("q-" + key).addEventListener("click", (e) => {
+          const btn = e.target.closest(".opt");
+          if (!btn) return;
+          $("q-" + key).querySelectorAll(".opt").forEach((o) => o.classList.toggle("active", o === btn));
+          secret[key] = isNumber ? Number(btn.dataset.v) : btn.dataset.v;
+        });
+      });
     }
 
     async function submitWish() {
@@ -305,13 +407,15 @@
       if (!nickname) return (errorBox.textContent = ERROR_TEXT.INVALID_NICKNAME);
       if (!year)     return (errorBox.textContent = ERROR_TEXT.INVALID_YEAR);
       if (!message)  return (errorBox.textContent = ERROR_TEXT.INVALID_MESSAGE);
+      if (secret.knew === null || secret.handsome === null || secret.kindness === null)
+        return (errorBox.textContent = ERROR_TEXT.INVALID_SECRET);
 
       errorBox.textContent = "";
       btn.disabled = true;
       btn.textContent = "傳送中…";
 
       try {
-        const result = await api("submit", { nickname, year, message });
+        const result = await api("submit", { nickname, year, message, ...secret });
         if (result.ok)                          return show("view-thanks");
         if (result.error === "ALREADY_SUBMITTED") return show("view-thanks");
         errorBox.textContent = ERROR_TEXT[result.error] || result.error;
@@ -338,7 +442,7 @@
       $("share-btn").addEventListener("click", () => shareLink(status.max));
       if (status.unlocked) {
         $("owner-title").textContent = "生日禮物已解鎖！";
-        $("owner-sub").textContent = "已經達標了！仍然可以繼續分享給朋友參與";
+        $("owner-sub").textContent = "已經達標了！仍然可以分享給朋友繼續參與";
         $("gift-btn").hidden = false;
         $("gift-btn").addEventListener("click", openGift);
       } else {
@@ -378,7 +482,7 @@
           btn.textContent = "打開禮物 🎁";
           return alert(result.error === "LOCKED" ? "還沒達標喔" : (ERROR_TEXT[result.error] || result.error));
         }
-        renderGift(result.wishes);
+        renderGift(result.wishes, result.stats);
       } catch (err) {
         btn.disabled = false;
         btn.textContent = "打開禮物 🎁";
@@ -386,7 +490,8 @@
       }
     }
 
-    function renderGift(wishes) {
+    function renderGift(wishes, stats) {
+      renderStats(stats);
       const thisYear = new Date().getFullYear();
       $("gift-sub").textContent = `果然是朋友王，總共收集了 ${wishes.length} 位朋友的祝福`;
 
@@ -421,6 +526,29 @@
       window.scrollTo(0, 0);
       confetti();
       revealOnScroll();
+    }
+
+    // 悄悄話統計，融入開場文字
+    function renderStats(stats) {
+      const box = $("gift-stats");
+      box.innerHTML = "";
+      if (!stats) return;
+      const line = (before, value, digits, after, note) => {
+        if (value === null || value === undefined) return;
+        const p = document.createElement("p");
+        const b = document.createElement("b");
+        b.textContent = Number(value).toFixed(digits);
+        p.append(before, b, after);
+        if (note) {
+          const small = document.createElement("small");
+          small.textContent = note;
+          p.appendChild(small);
+        }
+        box.appendChild(p);
+      };
+      line("一共有 ", stats.knewPct, 2, "% 的朋友記得你的生日");
+      line("大家對你的帥度，\n平均給出 ", stats.handsome, 2, " 分的高分！", "（滿分 10 分）");
+      line("大家對你的善良程度，\n平均給出 ", stats.kindness, 1, " 顆星的高評價！", "（滿分 5 顆星）");
     }
 
     function wishCard(w) {
