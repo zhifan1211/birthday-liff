@@ -92,14 +92,17 @@
     #gift-stats p { margin: 2px 0; }
         .gift-hero .stats-foot { font-size: 12px; color: #b3a69c; margin-top: 6px; }
     .gift-quote {
-      position: relative; margin: 40px 0 0; padding: 26px 0 18px;
-      border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line);
+      margin: 28px 0 0; padding: 0 0 18px;
+      border-bottom: 1.5px solid var(--line);
       font-size: 20px; font-weight: 700; line-height: 1.7; color: var(--text); text-align: center;
     }
+    /* 引號放在文字上方（不重疊），左右用兩條細線 */
     .gift-quote::before {
-      content: "“"; position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
-      padding: 0 12px; background: var(--bg);
-      font-family: Georgia, "Times New Roman", serif; font-size: 60px; line-height: 1; color: var(--accent);
+      content: "“"; display: block; margin-bottom: 4px;
+      font-family: Georgia, "Times New Roman", serif; font-size: 60px; line-height: 1; height: .6em; color: var(--accent);
+      background:
+        linear-gradient(var(--line), var(--line)) left 50% / calc(50% - 32px) 1.5px no-repeat,
+        linear-gradient(var(--line), var(--line)) right 50% / calc(50% - 32px) 1.5px no-repeat;
     }
     .gift-quote cite { display: block; margin-top: 10px; font-size: 14px; font-weight: 500; font-style: normal; color: var(--muted); }
     #gift-stats b, #gift-stats b { color: var(--accent-dark); }
@@ -153,12 +156,12 @@
 
     /* ===== 悄悄話區 ===== */
     .secret {
-      margin-top: 28px; padding: 18px 16px 20px;
-      background: #f6f1fb; border: 1.5px dashed #c9b6e4; border-radius: 16px;
+      margin-top: 28px; padding-top: 22px;
+      border-top: 1.5px dashed var(--line);
     }
-    .secret-head { font-weight: 800; font-size: 17px; color: #6b4fa0; }
-    .secret-note { margin: 4px 0 0; font-size: 14px; color: #7a6a92; }
-    .secret-note b { color: #6b4fa0; }
+    .secret-head { font-weight: 800; font-size: 17px; color: var(--text); }
+    .secret-note { margin: 4px 0 0; font-size: 14px; color: var(--muted); }
+    .secret-note b { color: var(--accent-dark); }
     .secret label { margin-top: 18px; }
     .opts { display: grid; gap: 6px; }
     .opts.two { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -166,18 +169,17 @@
     .opts .opt {
       margin: 0; width: 100%; padding: 10px 0;
       font-size: 15px; font-weight: 600;
-      color: #6b4fa0; background: #fff;
-      border: 1.5px solid #ddd0ee; border-radius: 10px;
+      color: var(--text); background: #fffdfa;
+      border: 1.5px solid var(--line); border-radius: 10px;
     }
     .opts.score .opt { padding: 9px 0; font-size: 14px; border-radius: 8px; }
-    .opts .opt:active { background: #efe7f9; }
-    .opts .opt.active { color: #fff; background: #8a6cc0; border-color: #8a6cc0; }
-    .score-ends { display: flex; justify-content: space-between; font-size: 12px; color: #9a8bb0; margin-top: 4px; }
+    .opts .opt:active { background: #fdeee7; }
+    .opts .opt.active { color: #fff; background: var(--accent); border-color: var(--accent); }
 
     .stars { display: flex; gap: 6px; }
     .stars .star {
       margin: 0; width: auto; padding: 0 2px; background: none; border: none;
-      font-size: 36px; line-height: 1.1; color: #ddd0ee; cursor: pointer;
+      font-size: 36px; line-height: 1.1; color: var(--line); cursor: pointer;
     }
     .stars .star.on { color: #f4b400; }
     .stars .star:active { background: none; transform: scale(.9); }
