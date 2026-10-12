@@ -183,8 +183,21 @@
     }
     .stars .star.on { color: #f4b400; }
     .stars .star:active { background: none; transform: scale(.9); }
-
-
+    /* ===== 帥度太低的提醒視窗 ===== */
+    .modal-mask {
+      position: fixed; inset: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      background: rgba(59, 47, 42, 0.45); animation: fade .2s ease;
+    }
+    .modal {
+      width: 100%; max-width: 320px; padding: 26px 22px 20px; text-align: center;
+      background: var(--card); border-radius: 20px; box-shadow: 0 12px 40px rgba(0,0,0,.18);
+      animation: pop .35s ease;
+    }
+    .modal .emoji { font-size: 44px; margin-bottom: 6px; }
+    .modal p { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.6; }
+    .modal button { margin-top: 20px; }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -273,6 +286,14 @@
       </div>
     </div>
   </main>
+  <!-- 帥度給太低時跳出 -->
+  <div class="modal-mask" id="kind-modal" hidden>
+    <div class="modal">
+      <div class="emoji">😇</div>
+      <p>就算謊言也好，<br>今天一起當善良的人</p>
+      <button type="button" id="kind-ok">好啦，我重新打分數</button>
+    </div>
+  </div>
 
   <!-- LIFF SDK -->
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
@@ -364,6 +385,10 @@
 
       $("message").addEventListener("input", (e) => ($("msg-len").textContent = e.target.value.length));
       setupSecretQuestions();
+      $("kind-ok").addEventListener("click", () => {
+        $("kind-modal").hidden = true;
+        $("q-handsome").scrollIntoView({ behavior: "smooth", block: "center" });
+      });
       $("submit-btn").addEventListener("click", submitWish);
       show("view-form");
     }
@@ -425,6 +450,12 @@
       if (!message)  return (errorBox.textContent = ERROR_TEXT.INVALID_MESSAGE);
       if (secret.knew === null || secret.handsome === null || secret.kindness === null)
         return (errorBox.textContent = ERROR_TEXT.INVALID_SECRET);
+      // 帥度 4 分以下不給送出 😆
+      if (secret.handsome <= 4) {
+        errorBox.textContent = "";
+        $("kind-modal").hidden = false;
+        return;
+      }
 
       errorBox.textContent = "";
       btn.disabled = true;
