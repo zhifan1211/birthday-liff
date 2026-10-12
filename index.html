@@ -120,8 +120,7 @@
     .wish-name { font-weight: 700; }
     .wish-msg { white-space: pre-wrap; word-break: break-word; margin: 0; }
 
-    .gift-end { text-align: center; color: var(--muted); padding: 24px 0 8px; }
-    .gift-end .heart { font-size: 32px; display: block; margin-bottom: 6px; }
+    .gift-end { text-align: center; color: var(--accent-dark); font-weight: 700; font-size: 17px; padding: 24px 12px 8px; }
 
     .confetti { position: fixed; top: -12px; width: 8px; height: 14px; border-radius: 2px; pointer-events: none; z-index: 9; animation: fall linear forwards; }
 
@@ -154,7 +153,7 @@
     <div id="view-form" class="card" hidden>
       <div class="emoji">🎂</div>
       <h1>寫一段祝福給<span class="birthday-name"></span></h1>
-      <p class="sub">為了開啟禮物盒，<span class="birthday-name"></span>需要集滿 <span class="max"></span> 個人的祝福<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
+      <p class="sub">為了開啟禮物盒，<span class="birthday-name"></span>需要至少 <span class="max"></span> 位朋友的祝福<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
 
       <label for="nickname">你的暱稱 <span class="hint">（壽星平常怎麼叫你）</span></label>
       <input id="nickname" maxlength="20" placeholder="例如：Doris" />
@@ -174,20 +173,13 @@
     <div id="view-thanks" class="card center" hidden>
       <div class="emoji">💌</div>
       <h1>謝謝你的祝福！</h1>
-      <p class="sub">你的祝福已經收到了<br>等集滿 <span class="max"></span> 人，<span class="birthday-name"></span>就能打開禮物</p>
-    </div>
-
-    <!-- 朋友：已額滿 -->
-    <div id="view-full" class="card center" hidden>
-      <div class="emoji">🎉</div>
-      <h1>已經集滿祝福囉！</h1>
-      <p class="sub"><span class="max"></span> 份祝福都到齊了<br>謝謝你的關心，可以私下傳訊息祝<span class="birthday-name"></span>生日快樂 ❤️</p>
+      <p class="sub">你的祝福已經收到了<br>收集到至少 <span class="max"></span> 份祝福後，<span class="birthday-name"></span>就能打開禮物</p>
     </div>
 
     <!-- 壽星：進度 -->
     <div id="view-owner" class="card" hidden>
       <div class="emoji">🎁</div>
-      <h1>生日禮物尚未解鎖</h1>
+      <h1 id="owner-title">生日禮物尚未解鎖</h1>
       <p class="sub" id="owner-sub">把連結分享給朋友，集滿祝福就能打開</p>
       <div class="progress-num"><span id="owner-count"></span><small> / <span class="max"></span></small></div>
       <div class="bar"><div id="owner-bar" style="width:0"></div></div>
@@ -202,11 +194,11 @@
         <div class="big">🎂</div>
         <h1>生日快樂，<span class="birthday-name"></span>！</h1>
         <p id="gift-sub"></p>
+        <p>領取禮物前，看看他們都寫些什麼吧</p>
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
-        <span class="heart">❤️</span>
-        謝謝你們，一直都在
+        現在，你可以截圖給始作俑者<br>兌換你的生日禮物 🎁
       </div>
     </div>
   </main>
@@ -224,7 +216,6 @@
     const ERROR_TEXT = {
       LOGIN_EXPIRED:       "登入逾時，請重新整理頁面",
       ALREADY_SUBMITTED:   "你已經送出過祝福囉",
-      FULL:                "很可惜，名額剛好滿了",
       INVALID_NICKNAME:    "暱稱請填 1–20 個字",
       INVALID_MESSAGE:     "祝福請填 1–500 個字",
       INVALID_YEAR:        "請選擇認識的年份",
@@ -276,7 +267,6 @@
 
         if (status.isOwner)        return renderOwner(status);
         if (status.submitted)      return show("view-thanks");
-        if (status.full)           return show("view-full");
         renderForm(status);
       } catch (err) {
         console.error(err);
@@ -323,7 +313,6 @@
         const result = await api("submit", { nickname, year, message });
         if (result.ok)                          return show("view-thanks");
         if (result.error === "ALREADY_SUBMITTED") return show("view-thanks");
-        if (result.error === "FULL")              return show("view-full");
         errorBox.textContent = ERROR_TEXT[result.error] || result.error;
       } catch (err) {
         errorBox.textContent = "網路不穩，請再試一次";
@@ -344,21 +333,22 @@
         names.appendChild(tag);
       });
 
-      if (status.full) {
-        $("owner-sub").textContent = "大家的祝福都到齊了！";
-        $("share-btn").hidden = true;
+      // 達標後仍可繼續分享，讓更多朋友寫祝福
+      $("share-btn").addEventListener("click", () => shareLink(status.max));
+      if (status.unlocked) {
+        $("owner-title").textContent = "生日禮物已解鎖！";
+        $("owner-sub").textContent = "已經達標了！還沒寫的朋友之後仍然可以繼續寫";
         $("gift-btn").hidden = false;
         $("gift-btn").addEventListener("click", openGift);
       } else {
         $("owner-sub").textContent = `還差 ${status.max - status.count} 個人，把連結分享給朋友吧`;
-        $("share-btn").addEventListener("click", () => shareLink(status.max));
       }
       show("view-owner");
     }
 
     async function shareLink(max) {
       const url = `https://liff.line.me/${LIFF_ID}`;
-      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？集滿 ${max} 人才能打開禮物！\n${url}`;
+      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？至少要 ${max} 個人才能打開禮物！\n${url}`;
       try {
         if (liff.isApiAvailable("shareTargetPicker")) {
           await liff.shareTargetPicker([{ type: "text", text }]);
@@ -385,7 +375,7 @@
         if (!result.ok) {
           btn.disabled = false;
           btn.textContent = "打開禮物 🎁";
-          return alert(result.error === "LOCKED" ? "還沒集滿喔" : (ERROR_TEXT[result.error] || result.error));
+          return alert(result.error === "LOCKED" ? "還沒達標喔" : (ERROR_TEXT[result.error] || result.error));
         }
         renderGift(result.wishes);
       } catch (err) {
@@ -397,8 +387,7 @@
 
     function renderGift(wishes) {
       const thisYear = new Date().getFullYear();
-      const firstYear = wishes.length ? wishes[0].year : thisYear;
-      $("gift-sub").textContent = `${wishes.length} 位朋友，從 ${firstYear} 年一路陪你到現在`;
+      $("gift-sub").textContent = `果然是朋友王，總共收集了 ${wishes.length} 位朋友的祝福`;
 
       // 依年份分組（後端已經由舊到新排好）
       const groups = [];
