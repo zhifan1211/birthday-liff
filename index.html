@@ -284,14 +284,14 @@
         $("gift-btn").addEventListener("click", () => alert("禮物頁在第 4 課完成 😉"));
       } else {
         $("owner-sub").textContent = `還差 ${status.max - status.count} 個人，把連結分享給朋友吧`;
-        $("share-btn").addEventListener("click", shareLink);
+        $("share-btn").addEventListener("click", () => shareLink(status.max));
       }
       show("view-owner");
     }
 
-    async function shareLink() {
+    async function shareLink(max) {
       const url = `https://liff.line.me/${LIFF_ID}`;
-      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？集滿 12 人才能打開禮物！\n${url}`;
+      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？集滿 ${max} 人才能打開禮物！\n${url}`;
       try {
         if (liff.isApiAvailable("shareTargetPicker")) {
           await liff.shareTargetPicker([{ type: "text", text }]);
