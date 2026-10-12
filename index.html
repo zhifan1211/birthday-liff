@@ -87,10 +87,12 @@
     .gift-hero { text-align: center; padding: 28px 8px 8px; animation: rise .8s ease both; }
     .gift-hero .big { font-size: 64px; line-height: 1; animation: pop 1s ease both; }
     .gift-hero h1 { font-size: 28px; margin: 16px 0 8px; }
-    .gift-hero p { color: var(--muted); margin: 0; }
-    #gift-stats p { margin: 8px 0; white-space: pre-line; }
-    #gift-stats b, #gift-sub b { color: var(--accent-dark); font-size: 1.1em; }
-    #gift-stats { margin: 10px 0; }
+    .gift-hero p { color: var(--muted); margin: 0; font-size: 15px; }
+    #gift-stats b { font-size: 1.15em; }
+    #gift-stats p { margin: 2px 0; }
+    .gift-hero .gift-lead { margin-top: 18px; }
+    #gift-stats b, #gift-sub b { color: var(--accent-dark); }
+    #gift-stats { margin: 2px 0 0; }
     #gift-stats small { display: inline-block; white-space: nowrap; font-size: 13px; }
 
     .timeline { position: relative; margin: 32px 0 0; padding-left: 28px; }
@@ -249,7 +251,7 @@
         <h1>生日快樂，<span class="birthday-name"></span>！</h1>
         <p id="gift-sub"></p>
         <div id="gift-stats"></div>
-        <p>領取禮物前，看看他們都寫些什麼吧</p>
+        <p class="gift-lead">領取禮物前，先來看看他們都寫些什麼吧！</p>
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
@@ -546,9 +548,9 @@
         }
         box.appendChild(p);
       };
-      line("一共有 ", stats.knewPct, 2, "% 的朋友記得你的生日");
-      line("大家對你的帥度，\n平均給出 ", stats.handsome, 2, " 分的高分！", "（滿分 10 分）");
-      line("大家對你的善良程度，\n平均給出 ", stats.kindness, 1, " 顆星的高評價！", "（滿分 5 顆星）");
+      line("經過調查，發現 ", stats.knewPct, 2, "% 的朋友記得你生日");
+      line("大家對你的帥氣程度，共同打出 ", stats.handsome, 2, " 的高分");
+      line("並且肯定你的善良，給予 ", stats.kindness, 1, " 顆星的高評價");
     }
 
     function wishCard(w) {
