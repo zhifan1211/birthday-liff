@@ -90,8 +90,19 @@
     .gift-hero p { color: var(--muted); margin: 0; font-size: 15px; }
     #gift-stats b { font-size: 1.15em; }
     #gift-stats p { margin: 2px 0; }
-    .gift-hero .gift-lead { margin-top: 18px; }
-    #gift-stats b, #gift-sub b { color: var(--accent-dark); }
+        .gift-hero .stats-foot { font-size: 12px; color: #b3a69c; margin-top: 6px; }
+    .gift-quote {
+      position: relative; margin: 40px 0 0; padding: 26px 0 18px;
+      border-top: 1.5px solid var(--line); border-bottom: 1.5px solid var(--line);
+      font-size: 20px; font-weight: 700; line-height: 1.7; color: var(--text); text-align: center;
+    }
+    .gift-quote::before {
+      content: "“"; position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+      padding: 0 12px; background: var(--bg);
+      font-family: Georgia, "Times New Roman", serif; font-size: 60px; line-height: 1; color: var(--accent);
+    }
+    .gift-quote cite { display: block; margin-top: 10px; font-size: 14px; font-weight: 500; font-style: normal; color: var(--muted); }
+    #gift-stats b, #gift-stats b { color: var(--accent-dark); }
     #gift-stats { margin: 2px 0 0; }
     #gift-stats small { display: inline-block; white-space: nowrap; font-size: 13px; }
 
@@ -249,9 +260,11 @@
       <div class="gift-hero">
         <div class="big">🎂</div>
         <h1>生日快樂，<span class="birthday-name"></span>！</h1>
-        <p id="gift-sub"></p>
         <div id="gift-stats"></div>
-        <p class="gift-lead">領取禮物前，先來看看他們都寫些什麼吧！</p>
+        <p class="stats-foot">＊帥氣程度滿分 10 分，善良最高 5 顆星</p>
+        <blockquote class="gift-quote">
+          領取禮物前，<br>先來看看他們都寫些什麼吧！
+        </blockquote>
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
@@ -493,9 +506,8 @@
     }
 
     function renderGift(wishes, stats) {
-      renderStats(stats);
+      renderStats(stats, wishes.length);
       const thisYear = new Date().getFullYear();
-      $("gift-sub").textContent = `果然是朋友王，總共收集了 ${wishes.length} 位朋友的祝福`;
 
       // 依年份分組（後端已經由舊到新排好）
       const groups = [];
@@ -531,10 +543,9 @@
     }
 
     // 悄悄話統計，融入開場文字
-    function renderStats(stats) {
+    function renderStats(stats, count) {
       const box = $("gift-stats");
       box.innerHTML = "";
-      if (!stats) return;
       const line = (before, value, digits, after, note) => {
         if (value === null || value === undefined) return;
         const p = document.createElement("p");
@@ -548,6 +559,8 @@
         }
         box.appendChild(p);
       };
+      stats = stats || {};
+      line("果然是朋友王，總共收集了 ", count, 0, " 位朋友的祝福");
       line("經過調查，發現 ", stats.knewPct, 2, "% 的朋友記得你生日");
       line("大家對你的帥氣程度，共同打出 ", stats.handsome, 2, " 的高分");
       line("並且肯定你的善良，給予 ", stats.kindness, 1, " 顆星的高評價");
