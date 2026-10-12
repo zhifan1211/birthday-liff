@@ -199,7 +199,7 @@
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
-        現在，你可以截圖給始作俑者<br>兌換你的生日禮物 🎁
+        現在，你可以截圖給發任務的人，兌換生日禮物！
       </div>
     </div>
   </main>
@@ -338,7 +338,7 @@
       $("share-btn").addEventListener("click", () => shareLink(status.max));
       if (status.unlocked) {
         $("owner-title").textContent = "生日禮物已解鎖！";
-        $("owner-sub").textContent = "已經達標了！還沒寫的朋友之後仍然可以繼續寫";
+        $("owner-sub").textContent = "已經達標了！仍然可以繼續分享給朋友參與";
         $("gift-btn").hidden = false;
         $("gift-btn").addEventListener("click", openGift);
       } else {
