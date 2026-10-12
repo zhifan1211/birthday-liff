@@ -252,7 +252,6 @@
       <p class="sub" id="owner-sub">把連結分享給朋友，集滿祝福就能打開</p>
       <div class="progress-num"><span id="owner-count"></span><small> / <span class="max"></span></small></div>
       <div class="bar"><div id="owner-bar" style="width:0"></div></div>
-      <div class="names" id="owner-names"></div>
       <button id="share-btn">分享連結給朋友</button>
       <button id="gift-btn" hidden>打開禮物 🎁</button>
     </div>
@@ -447,14 +446,6 @@
     function renderOwner(status) {
       $("owner-count").textContent = status.count;
       $("owner-bar").style.width = Math.min(100, (status.count / status.max) * 100) + "%";
-
-      const names = $("owner-names");
-      status.names.forEach((n) => {
-        const tag = document.createElement("span");
-        tag.textContent = n;
-        names.appendChild(tag);
-      });
-
       // 達標後仍可繼續分享，讓更多朋友寫祝福
       $("share-btn").addEventListener("click", () => shareLink(status.max));
       if (status.unlocked) {
