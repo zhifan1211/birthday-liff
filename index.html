@@ -204,7 +204,7 @@
 <body>
   <main>
     <!-- 載入中 -->
-    <div id="view-loading" class="loading">載入中…</div>
+    <div id="view-loading" class="loading">禮物包裝中…</div>
 
     <!-- 錯誤 -->
     <div id="view-error" class="card center" hidden>
@@ -232,7 +232,7 @@
 
       <div class="secret">
         <div class="secret-head">悄悄話時間</div>
-        <p class="secret-note">你的個別回答<b>不會讓<span class="birthday-name"></span>知道</b>，只會以全體統計的方式呈現，請放心作答</p>
+        <p class="secret-note">你的個別回答<b>不會讓<span class="birthday-name"></span>知道</b>，僅會以全體統計的方式呈現，請放心作答</p>
 
         <label>在收到邀請前，你記得 <span class="birthday-date"></span> 是<span class="birthday-name"></span>的生日嗎？</label>
         <div class="opts two" id="q-knew">
@@ -240,7 +240,7 @@
           <button type="button" class="opt" data-v="現在才知道">現在才知道 🤣</button>
         </div>
 
-        <label>如果你心目中的滿分帥哥是 10 分，那你會給<span class="birthday-name"></span>打幾分？</label>
+        <label>如果你心目中的滿分帥哥是 10 分，你會給<span class="birthday-name"></span>打幾分？</label>
         <div class="opts score" id="q-handsome"></div>
 
         <label>如果一個人內心的善良可以被評級，你會給<span class="birthday-name"></span>幾顆星？</label>
@@ -255,7 +255,7 @@
     <div id="view-thanks" class="card center" hidden>
       <div class="emoji">💌</div>
       <h1>謝謝你的祝福！</h1>
-      <p class="sub">你的祝福已經收到了<br>收集到至少 <span class="max"></span> 份祝福後，<span class="birthday-name"></span>就能打開禮物</p>
+      <p class="sub">你的祝福已經被裝進禮物盒了<br>收集到至少 <span class="max"></span> 份祝福後，<span class="birthday-name"></span>就能打開禮物</p>
     </div>
 
     <!-- 壽星：進度 -->
@@ -266,7 +266,7 @@
       <div class="progress-num"><span id="owner-count"></span><small> / <span class="max"></span></small></div>
       <div class="bar"><div id="owner-bar" style="width:0"></div></div>
       <button id="share-btn">分享連結給朋友</button>
-      <button id="gift-btn" hidden>打開禮物 🎁</button>
+      <button id="gift-btn" hidden>✨ 打開禮物 ✨</button>
     </div>
 
     <!-- 壽星：禮物頁 -->
@@ -277,12 +277,12 @@
         <div id="gift-stats"></div>
         <p class="stats-foot">＊帥氣程度滿分 10 分，善良最高 5 顆星</p>
         <blockquote class="gift-quote">
-          領取禮物前，<br>先來看看他們都寫些什麼吧！
+          領取禮物前<br>先來看看他們都寫些什麼吧！
         </blockquote>
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
-        現在，你可以截圖給任務發起人<br>兌換你的生日禮物 🎁
+        現在，你可以截圖給任務發起人<br>兌換你的生日禮物
       </div>
     </div>
   </main>
@@ -290,7 +290,7 @@
   <div class="modal-mask" id="kind-modal" hidden>
     <div class="modal">
       <div class="emoji">😇</div>
-      <p>就算謊言也好，<br>今天一起當善良的人</p>
+      <p>就算謊言也好...<br>今天一起當善良的人！</p>
       <button type="button" id="kind-ok">好啦，我重新打分數</button>
     </div>
   </div>
