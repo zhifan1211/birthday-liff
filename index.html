@@ -198,9 +198,12 @@
     .modal p { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.6; }
     .modal button { margin-top: 20px; }
     .modal .gift-photo {
-      display: block; width: 100%; max-height: 50vh; object-fit: cover;
-      border-radius: 14px; margin-bottom: 16px;
+      display: block; width: 100%; max-height: 45vh; object-fit: cover;
+      border-radius: 14px; margin: 16px 0;
     }
+    #gift-modal { padding: 16px; }
+    #gift-modal .modal { max-width: 340px; padding: 22px 16px 16px; }
+    .modal .gift-text { font-size: 13.5px; font-weight: 400; line-height: 1.7; color: var(--text); }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     [hidden] { display: none !important; }
   </style>
@@ -293,9 +296,10 @@
   <!-- 領取禮物時跳出 -->
   <div class="modal-mask" id="gift-modal" hidden>
     <div class="modal">
+      <p class="gift-text">生日快樂！這次開禮物的遊戲應該不會太難吧？<br>希望你會喜歡今年的禮物</p>
       <img class="gift-photo" src="gift.jpg" alt="生日禮物" />
-      <p>預購的禮物遲到了<br>後續會再聯繫取件時間<br>關閉視窗前<br>記得截圖給任務發起人</p>
-      <button type="button" id="gift-ok">我有耐心，我願意等</button>
+      <p class="gift-text">不過很可惜……它至今還沒到貨<br>相信善良的你，會願意等後續通知出貨的時間</p>
+      <button type="button" id="gift-ok">已完成挑戰</button>
     </div>
   </div>
   <!-- 帥度給太低時跳出 -->
@@ -538,7 +542,10 @@
     }
 
     function renderGift(wishes, stats) {
-      $("claim-btn").onclick = () => ($("gift-modal").hidden = false);
+      $("claim-btn").onclick = () => {
+        $("gift-modal").hidden = false;
+        api("claim").catch(() => {});   // 背景通知始作俑者，不影響畫面
+      };
       $("gift-ok").onclick    = () => ($("gift-modal").hidden = true);
       renderStats(stats, wishes.length);
       const thisYear = new Date().getFullYear();
