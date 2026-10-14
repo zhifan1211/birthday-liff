@@ -197,6 +197,10 @@
     .modal .emoji { font-size: 44px; margin-bottom: 6px; }
     .modal p { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.6; }
     .modal button { margin-top: 20px; }
+    .modal .gift-photo {
+      display: block; width: 100%; max-height: 50vh; object-fit: cover;
+      border-radius: 14px; margin-bottom: 16px;
+    }
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     [hidden] { display: none !important; }
   </style>
@@ -282,10 +286,18 @@
       </div>
       <div class="timeline" id="timeline"></div>
       <div class="gift-end">
-        現在，你可以截圖給任務發起人<br>兌換你的生日禮物
+        <button type="button" id="claim-btn">領取禮物</button>
       </div>
     </div>
   </main>
+  <!-- 領取禮物時跳出 -->
+  <div class="modal-mask" id="gift-modal" hidden>
+    <div class="modal">
+      <img class="gift-photo" src="gift.jpg" alt="生日禮物" />
+      <p>預購的禮物遲到了<br>後續會再聯繫取件時間<br>關閉視窗前<br>記得截圖給任務發起人</p>
+      <button type="button" id="gift-ok">我有耐心，我願意等</button>
+    </div>
+  </div>
   <!-- 帥度給太低時跳出 -->
   <div class="modal-mask" id="kind-modal" hidden>
     <div class="modal">
@@ -526,6 +538,8 @@
     }
 
     function renderGift(wishes, stats) {
+      $("claim-btn").onclick = () => ($("gift-modal").hidden = false);
+      $("gift-ok").onclick    = () => ($("gift-modal").hidden = true);
       renderStats(stats, wishes.length);
       const thisYear = new Date().getFullYear();
 
