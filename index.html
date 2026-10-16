@@ -224,8 +224,8 @@
     <!-- 朋友：填寫表單 -->
     <div id="view-form" class="card" hidden>
       <div class="emoji">🎂</div>
-      <h1>寫一段祝福給<span class="birthday-name"></span></h1>
-      <p class="sub">為了開啟禮物盒<br><span class="birthday-name"></span>需要至少 <span class="max"></span> 位朋友的祝福<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
+      <h1>寫一段文字送給<span class="birthday-name"></span></h1>
+      <p class="sub">為了開啟禮物盒<br><span class="birthday-name"></span>至少要 <span class="max"></span> 位朋友的集氣<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
 
       <label for="nickname">你的暱稱 <span class="hint">（壽星平常怎麼叫你）</span></label>
       <input id="nickname" maxlength="20" placeholder="例如：Doris" />
@@ -234,7 +234,7 @@
       <select id="year"><option value="">請選擇年份</option></select>
 
       <label for="message">想對<span class="birthday-name"></span>說的話</label>
-      <textarea id="message" maxlength="500" placeholder="寫下你的祝福…"></textarea>
+      <textarea id="message" maxlength="500" placeholder="寫下你想說的話…"></textarea>
       <div class="counter"><span id="msg-len">0</span> / 500</div>
 
       <div class="secret">
@@ -262,14 +262,14 @@
     <div id="view-thanks" class="card center" hidden>
       <div class="emoji">💌</div>
       <h1>謝謝你的祝福！</h1>
-      <p class="sub">你的祝福已經被裝進禮物盒了<br>收集到至少 <span class="max"></span> 份祝福後，<span class="birthday-name"></span>就能打開禮物</p>
+      <p class="sub">你的祝福已經被裝進禮物盒了<br>等集齊 <span class="max"></span> 份祝福後，<span class="birthday-name"></span>就能打開禮物</p>
     </div>
 
     <!-- 壽星：進度 -->
     <div id="view-owner" class="card" hidden>
       <div class="emoji">🎁</div>
       <h1 id="owner-title">生日禮物尚未解鎖</h1>
-      <p class="sub" id="owner-sub">把連結分享給朋友，集滿祝福就能打開</p>
+      <p class="sub" id="owner-sub">把連結分享給朋友，透過眾人集氣就能打開</p>
       <div class="progress-num"><span id="owner-count"></span><small> / <span class="max"></span></small></div>
       <div class="bar"><div id="owner-bar" style="width:0"></div></div>
       <button id="share-btn">分享連結給朋友</button>
@@ -329,7 +329,7 @@
       INVALID_MESSAGE:     "祝福請填 1–500 個字",
       INVALID_YEAR:        "請選擇認識的年份",
       INVALID_SECRET:      "悄悄話的三個問題還沒回答完喔",
-      OWNER_CANNOT_SUBMIT: "壽星不能幫自己寫祝福喔 😆",
+      OWNER_CANNOT_SUBMIT: "壽星不能幫自己集氣喔 😆",
       CONFIG_MISSING:      "後端設定不完整（指令碼屬性）",
       SERVER_ERROR:        "伺服器發生錯誤，請稍後再試",
     };
@@ -489,7 +489,7 @@
     function renderOwner(status) {
       $("owner-count").textContent = status.count;
       $("owner-bar").style.width = Math.min(100, (status.count / status.max) * 100) + "%";
-      // 達標後仍可繼續分享，讓更多朋友寫祝福
+      // 達標後仍可繼續分享，讓更多朋友一起集氣
       $("share-btn").addEventListener("click", () => shareLink(status.max));
       if (status.unlocked) {
         $("owner-title").textContent = "生日禮物已解鎖！";
