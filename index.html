@@ -225,7 +225,7 @@
     <div id="view-form" class="card" hidden>
       <div class="emoji">🎂</div>
       <h1>寫一段文字送給<span class="birthday-name"></span></h1>
-      <p class="sub">為了開啟禮物盒<br><span class="birthday-name"></span>至少要 <span class="max"></span> 位朋友的集氣<br>目前已經有 <b id="form-count"></b> 位朋友送出了</p>
+      <p class="sub">為了開啟禮物盒<br><span class="birthday-name"></span>至少要 <span class="max"></span> 位朋友共同集氣<br>目前已經累積 <b id="form-count"></b> 位善心人士</p>
 
       <label for="nickname">你的暱稱 <span class="hint">（壽星平常怎麼叫你）</span></label>
       <input id="nickname" maxlength="20" placeholder="例如：Doris" />
@@ -234,7 +234,7 @@
       <select id="year"><option value="">請選擇年份</option></select>
 
       <label for="message">想對<span class="birthday-name"></span>說的話</label>
-      <textarea id="message" maxlength="500" placeholder="寫下你想說的話…"></textarea>
+      <textarea id="message" maxlength="500" placeholder="(只有壽星看得到，其他人不會)"></textarea>
       <div class="counter"><span id="msg-len">0</span> / 500</div>
 
       <div class="secret">
@@ -243,8 +243,8 @@
 
         <label>在收到邀請前，你記得 <span class="birthday-date"></span> 是<span class="birthday-name"></span>的生日嗎？</label>
         <div class="opts two" id="q-knew">
-          <button type="button" class="opt" data-v="本來就知道">本來就記得 😊</button>
-          <button type="button" class="opt" data-v="現在才知道">現在才知道 🤣</button>
+          <button type="button" class="opt" data-v="1">本來就記得 😊</button>
+          <button type="button" class="opt" data-v="2">現在才知道 🤣</button>
         </div>
 
         <label>如果你心目中的滿分帥哥是 10 分，你會給<span class="birthday-name"></span>打幾分？</label>
