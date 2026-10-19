@@ -504,7 +504,7 @@
 
     async function shareLink(max) {
       const url = `https://liff.line.me/${LIFF_ID}`;
-      const text = `我生日快到了 🎂 幫我寫一段祝福好嗎？至少要 ${max} 個人才能打開禮物！\n${url}`;
+      const text = `我生日快到了，需要至少 ${max} 人集氣才能打開禮物，邀請你來幫忙\n${url}`;
       try {
         if (liff.isApiAvailable("shareTargetPicker")) {
           await liff.shareTargetPicker([{ type: "text", text }]);
